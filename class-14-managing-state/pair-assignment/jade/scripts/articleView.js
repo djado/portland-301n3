@@ -13,6 +13,8 @@
   };
 
   // COMMENT: What does this method do?  What is it's execution path?
+  // Answer: Creates a 'filter-by-author' drop-down
+  // Creates options from allAuthors
   articleView.populateFilters = function() {
     var options,
       template = Handlebars.compile($('#option-template').text());
@@ -20,9 +22,11 @@
     // Example of using model method with FP, synchronous approach:
     // NB: This method is dependant on info being in the DOM. Only authors of shown articles are loaded.
     options = Article.allAuthors().map(function(author) { return template({val: author}); });
+
     if ($('#author-filter option').length < 2) { // Prevent duplication
+        // build the select...
       $('#author-filter').append(options);
-    };
+    }
 
     // Example of using model method with async, SQL-based approach:
     // This approach is DOM-independent, since it reads from the DB directly.
@@ -33,14 +37,17 @@
             return template({val: row.category});
           })
         );
-      };
+      }
     });
   };
 
   // COMMENT: What does this method do?  What is it's execution path?
+  // Answer: Adding event handler
   articleView.handleFilters = function() {
     $('#filters').one('change', 'select', function() {
+        // prepare a string for concat
       resource = this.id.replace('-filter', '');
+        // concatenate a string and hand off to page.js (changing address to trigger routing)
       page('/' + resource + '/' + $(this).val().replace(/\W+/g, '+')); // Replace any/all whitespace with a +
     });
   };
@@ -118,16 +125,21 @@
   };
 
   // COMMENT: What does this method do?  What is it's execution path?
+  // Answer: Being called by routing, affter articlesController.loadById
   articleView.index = function(articles) {
+    // Show only articles section
     $('#articles').show().siblings().hide();
-
     $('#articles article').remove();
+
     articles.forEach(function(a) {
+    // add all stored articles
       $('#articles').append(render(a));
     });
 
+    // add content to selects
     articleView.populateFilters();
     // COMMENT: What does this method do?  What is it's execution path?
+    // Answer: Added description on method (above)
     articleView.handleFilters();
 
     // DONE: Replace setTeasers with just the truncation logic, if needed:
